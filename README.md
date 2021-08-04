@@ -7,17 +7,23 @@ Remember, that you need follow the provided link to create your own private copy
 [help on the course website](https://psuastro528.github.io/tips) for instructions on getting setup to use ACI, cloning, commiting, pushing and submiting your work
 
 ## Exercise 1:  Benchmarking Code, Big-O notation, Compute vs Memory Limits
-### Goal 1: Benchmark functions accurately
-### Goal 2: Predict cost of an algorithm based on Big-O notation
-### Goal 3: Identify real world complications that affect scaling
+- Goal 1: Benchmark functions accurately
+- Goal 2: Predict cost of an algorithm based on Big-O notation
+- Goal 3: Identify real world complications that affect scaling
 
 From your Pluto notebook server, work through ex1.jl.
 
 ## Exercise 2:  Numerical Stability of N-body Integration
-### Goal 1:  Integrate differential equations
-### Goal 2:  Compare the accuracy of results as a function of time step, order and algorithm
-### Goal 3:  Recognize importance of numerical stability
+- Goal 1:  Integrate differential equations
+- Goal 2:  Compare the accuracy of results as a function of time step, order and algorithm
+- Goal 3:  Recognize importance of numerical stability
 
 From your Pluto notebook server, work through ex2.jl.
 
+## Exercise 3:  Assertions, Unit Tests & Continuous Integration Testing
+- Goal 1:  Implement effective assertions
+- Goal 2:  Implement effective unit tests
+- Goal 3:  Setup continuous integration testing
+
+From your Pluto notebook server, work through ex3.jl.
 
