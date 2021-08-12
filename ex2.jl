@@ -651,7 +651,6 @@ make_test_plots_v1(alg=Euler(), duration=100, plt_title="Euler, 1st order")
 make_test_plots_v1(alg=Heun(), steps_per_orbit=1000, duration=1000, plt_title="Heun, 2nd order")
 
 # ╔═╡ cbf0d4f7-a10c-4499-9bd5-052a21e3c984
-# SOLUTION
 make_test_plots_v1(alg=Midpoint(), steps_per_orbit=1000, duration=1000, plt_title="Midpoint, 2nd order")
 
 # ╔═╡ c49f5f6d-1ceb-40a3-8032-a74b465936a7
@@ -710,14 +709,17 @@ function make_test_plots_v2(; duration=100, alg=KahanLi6(), steps_per_orbit=36,
     separations = map(i->calc_separation(sol.u[i].x[2]),1:length(sol.u)) .- separation_init
 
     plot_separations = scatter(sol.t,separations, xlabel = "Time", ylabel = "Separation", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2, sigdigits=1):duration*year, yformatter=((x)->Printf.@sprintf "%0.1e" x))
+	annotate!(duration*year/2,0,(Printf.@sprintf "%.2g sec" walltime))
     E_init = calc_energy(r_init,v_init,mass)
     energies = map(i->calc_energy(sol.u[i].x[2],sol.u[i].x[1],mass),1:length(sol.u)) .- E_init
     plot_energy   = scatter(sol.t,energies, xlabel = "Time", ylabel = "Energy Error", markersize=0, legend = false,
       grid=:no, xticks=0:round(duration*year/2, sigdigits=1):duration*year, yformatter=((x)->Printf.@sprintf "%0.1e" x ))
+	annotate!(duration*year/2,0,(Printf.@sprintf "ΔE=%0.1e" energies[end]))
     Lz_init = calc_angular_momentum(r_init,v_init,mass)
     Lzs =  map(i->calc_angular_momentum(sol.u[i].x[2],sol.u[i].x[1],mass),1:length(sol.u)) .- Lz_init
     Lz_range = minimum(Lzs):maximum(Lzs)
     plot_Lz       = scatter(sol.t,Lzs, xlabel = "Time", ylabel = "L_z Error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2, sigdigits=1):duration*year, yformatter=((x)->Printf.@sprintf "%0.1e" x))
+	annotate!(duration*year/2,0,(Printf.@sprintf "ΔLz=%0.1e" Lzs[end]))
 	alg_str = string(alg)
 	println("# Algorithm: ", alg_str)
 	println("# Runtime ", walltime, " seconds.")
@@ -728,7 +730,7 @@ function make_test_plots_v2(; duration=100, alg=KahanLi6(), steps_per_orbit=36,
 	else
 		plt = plot( plot_energy, plot_Lz, plot_separations, plot_angle, layout = (2,2), fmt = :png )
 	end
-	
+
 end
 
 
@@ -755,8 +757,8 @@ display_msg_if_fail(check_type_isa(:response_2i,response_2i,[AbstractString,Mark
 md"""
 ## Choosing efficient algorithms
 
-j.  Try several of the [symplectic integrators](https://diffeq.sciml.ai/stable/solvers/dynamical_solve/#Symplectic-Integrators), such as `McAte3()`, `CalvoSanz4()`, `McAte5()`, `KahanLi6()`, `KahanLi8()`.  The number refers to the order of the integrator.  Compare the accuracy of the results with symplectic integrators of different orders.  
-Also compare the time required (see the text output in the Pluto server window).  
+j.  Try several of the [symplectic integrators](https://diffeq.sciml.ai/stable/solvers/dynamical_solve/#Symplectic-Integrators), such as `McAte3()`, `CalvoSanz4()`, `McAte5()`, `KahanLi6()`, `KahanLi8()`.  The number refers to the order of the integrator.  Compare the accuracy of the results with symplectic integrators of different orders.  You may want to extend the duration of the integrations by replacing 'num_orbits_symplectic' with a large value.
+Also compare the wall time required (see the duration printed in the separation panel).  
 """
 
 # ╔═╡ a287218b-6152-4af7-bce7-8a8559165ae4
@@ -765,20 +767,23 @@ response_2j =  missing; # md"INSERT RESPONSE"
 # ╔═╡ 9d8908a1-b164-4b8f-a555-47314094b5b6
 display_msg_if_fail(check_type_isa(:response_2j,response_2j,[AbstractString,Markdown.MD])) 
 
+# ╔═╡ a3decfbf-befc-474b-abdb-daada98148ee
+num_orbits_symplectic = 10_000 
+
 # ╔═╡ 96fbe112-7f1b-462f-9699-abc93e9e4054
-make_test_plots_v2(alg=McAte3(),steps_per_orbit=30,duration=10000, plt_title="McAte3")
+make_test_plots_v2(alg=McAte3(),steps_per_orbit=30,duration=num_orbits_symplectic, plt_title="McAte3")
 
 # ╔═╡ 8b39624e-247f-47dc-8eb3-48ec8239b9a4
-make_test_plots_v2(alg=CalvoSanz4(),steps_per_orbit=30,duration=10000, plt_title="CalvoSanz4")
+make_test_plots_v2(alg=CalvoSanz4(),steps_per_orbit=30,duration=num_orbits_symplectic, plt_title="CalvoSanz4")
 
 # ╔═╡ e22eb346-9383-471a-97db-918d9008be7a
-make_test_plots_v2(alg=McAte5(),steps_per_orbit=30,duration=10000, plt_title="McAte5")
+make_test_plots_v2(alg=McAte5(),steps_per_orbit=30,duration=num_orbits_symplectic, plt_title="McAte5")
 
 # ╔═╡ 4d199c96-3de6-4078-951d-501a04431e80
-make_test_plots_v2(alg=KahanLi6(),steps_per_orbit=30,duration=10000, plt_title="KahanLi6")
+make_test_plots_v2(alg=KahanLi6(),steps_per_orbit=30,duration=num_orbits_symplectic, plt_title="KahanLi6")
 
 # ╔═╡ 2d1349d8-b390-40bf-bd58-6f1c72d715b0
-make_test_plots_v2(alg=KahanLi8(),steps_per_orbit=30,duration=10000, plt_title="KahanLi8")
+make_test_plots_v2(alg=KahanLi8(),steps_per_orbit=30,duration=num_orbits_symplectic, plt_title="KahanLi8")
 
 # ╔═╡ 128a01f8-e597-4e5f-9654-609865522f96
 md"""
@@ -816,7 +821,7 @@ m.  Based on this lesson, what properties of an n-body integrator are most impor
 """
 
 # ╔═╡ 3f7ea976-3c75-4b78-9b90-803ae8202e89
-response_2m = missing;
+response_2m = missing; # md"INSERT RESPONSE"
 
 # ╔═╡ 137014c4-7da5-4bed-937f-0b33ace84be7
 display_msg_if_fail(check_type_isa(:response_2m,response_2m,[AbstractString,Markdown.MD])) 
@@ -2319,7 +2324,7 @@ version = "0.9.1+5"
 # ╠═732424a0-833b-44f2-a8cf-a964fcbec8d0
 # ╟─6854f09c-f0b2-41e3-bc1b-e0bcbb420ad1
 # ╠═3dafb51e-80e3-4f80-8d38-881bcccfc171
-# ╠═d6848180-96d3-4ff8-ad27-ab9f7f8398e7
+# ╟─d6848180-96d3-4ff8-ad27-ab9f7f8398e7
 # ╠═de5585dd-2c16-46ce-aaef-daa42fea08ea
 # ╟─1660f55e-6834-48f1-a9c0-f3108faadd93
 # ╟─0e8e5bd2-575e-4b1d-a303-076af7b231b1
@@ -2361,10 +2366,10 @@ version = "0.9.1+5"
 # ╟─4ab79682-ac15-4b51-a630-464bdf5f9108
 # ╠═f14d96ef-d885-403a-8f2c-4023abb8db71
 # ╠═590ad389-9037-4a23-ab35-5bea96e32b11
-# ╠═bb4b371f-c5f4-4d56-9ffb-71cafc3a2ef7
+# ╟─bb4b371f-c5f4-4d56-9ffb-71cafc3a2ef7
 # ╠═20a77293-c0c1-445a-a9a5-239028238a2d
-# ╠═a5507391-1d49-4709-bc9d-bcf79f2c1ca3
-# ╠═090cfcd4-ee1a-4707-a523-26efa2bc2e9c
+# ╟─a5507391-1d49-4709-bc9d-bcf79f2c1ca3
+# ╟─090cfcd4-ee1a-4707-a523-26efa2bc2e9c
 # ╠═cbf0d4f7-a10c-4499-9bd5-052a21e3c984
 # ╠═c49f5f6d-1ceb-40a3-8032-a74b465936a7
 # ╠═b4d95d86-254c-4982-bd15-5ff263ff750d
@@ -2390,16 +2395,17 @@ version = "0.9.1+5"
 # ╟─acaffdff-67a1-43f5-ada6-b3d3a9cb0875
 # ╠═a287218b-6152-4af7-bce7-8a8559165ae4
 # ╟─9d8908a1-b164-4b8f-a555-47314094b5b6
+# ╠═a3decfbf-befc-474b-abdb-daada98148ee
 # ╠═96fbe112-7f1b-462f-9699-abc93e9e4054
 # ╠═8b39624e-247f-47dc-8eb3-48ec8239b9a4
 # ╠═e22eb346-9383-471a-97db-918d9008be7a
 # ╠═4d199c96-3de6-4078-951d-501a04431e80
 # ╠═2d1349d8-b390-40bf-bd58-6f1c72d715b0
 # ╟─128a01f8-e597-4e5f-9654-609865522f96
-# ╠═62844569-a5b2-4257-9f2b-1fe8257082dd
+# ╟─62844569-a5b2-4257-9f2b-1fe8257082dd
 # ╠═3a55e7e6-b091-402f-a960-087a21edb6ae
 # ╟─28b61d7f-53dc-4570-b76d-5a22973cb1c9
-# ╠═cb29423a-b1cf-43f2-8b4e-a6fe74ae2c71
+# ╟─cb29423a-b1cf-43f2-8b4e-a6fe74ae2c71
 # ╠═82fdb87f-6d17-407a-9fdf-4e1385a60a91
 # ╟─675d7d77-8efb-4519-872f-50003c555610
 # ╟─2204f9b6-4f84-47a1-a7db-1a4295b772d6
