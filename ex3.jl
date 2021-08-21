@@ -25,7 +25,37 @@ md"""
 ```math
 M = E - e \sin(E),
 ```
-where $e$ is the orbital eccentricity.  Solving the Kepler Equation is critical to be able to determine where a body is at a given time.  Since it is a transendental equation (i.e., there is no closed form algebraic solution), it is solved itteratively.  Over the centuries, there have been numerous studies of how to solve the Kepler equation efficiently.  Below, I've coded up a simple implementation for you to help you get stared.  For this exercise, you don't need to understand the details of how the algorithm works.  Instead, we will focus on how we can use principles of modern development to improve these functions via assertions and unit tests.  
+where $e$ is the orbital eccentricity.  The mean anomaly increases linearly with time, but the eccentric anomaly does not.
+"""
+
+# ╔═╡ 8116b382-c927-4563-8fde-dc034dd96ab9
+md"1a.  Update the function `calc_mean_anom` below to compute the mean anomaly for a given eccentric anomaly and eccentricity."
+
+# ╔═╡ c9eef6f8-4583-429b-a3ae-09f1ec8e5ecf
+"""   calc_mean_anom(ecc_anom, e) 
+Calculate mean anomaly for a given eccentric anomaly and eccentricity.
+"""
+function calc_mean_anom(ecc_anom::Real, e::Real) 
+	missing
+end;
+
+# ╔═╡ 05cf7bc1-cc04-4679-9534-05834f097371
+if !@isdefined(calc_mean_anom)
+   func_not_defined(:calc_mean_anom)
+else
+	if !(length(methods(calc_mean_anom,[Float64,Float64])) >= 1)
+		   keep_working(md"Your calc_mean_anom can't take two Float64's as arguments.")
+	elseif ismissing(calc_mean_anom(1.0,0.5))
+		still_missing()
+	elseif calc_mean_anom(1.0,0.5) ≈ 0.5792645075960517
+		correct()
+	else
+		keep_working()	
+	end
+end
+
+# ╔═╡ 3ebe8069-11d3-4885-aec8-72e2f3f5f906
+md"""Solving the Kepler Equation for $E$ given for a given $e$ and $E$ is critical to be able to determine where a body is at a given time.  Since it is a transendental equation (i.e., there is no closed form algebraic solution), it is solved itteratively.  Over the centuries, there have been numerous studies of how to solve the Kepler equation efficiently.  Below, I've coded up an implementation for you to help you get stared.  For this exercise, you don't need to understand the details of how the algorithm works.  Instead, we will focus on how we can use principles of modern software development to improve these functions via assertions and unit tests. 
 """
 
 # ╔═╡ f6be4fa8-351a-4c1c-b389-b79f09db2a4b
@@ -80,7 +110,7 @@ Optional parameter `tol` specifies tolerance (default 1e-8)
 function calc_ecc_anom(mean_anom::Real, ecc::Real; tol::Real = 1.0e-8)
   	@assert 0 <= ecc < 1.0
 	@assert 1e-16 <= tol < 1
-  	M = mod2pi(mean_anom)
+  	M = rem2pi(mean_anom,RoundNearest)
     E = ecc_anom_init_guess_danby(M,ecc)
 	local E_old
     max_its_laguerre = 200
@@ -92,32 +122,6 @@ function calc_ecc_anom(mean_anom::Real, ecc::Real; tol::Real = 1.0e-8)
     return E
 end;
 
-# ╔═╡ 8116b382-c927-4563-8fde-dc034dd96ab9
-md"1a.  Update the function `calc_mean_anom` below to compute the mean anomaly for a given eccentric anomaly and eccentricity."
-
-# ╔═╡ c9eef6f8-4583-429b-a3ae-09f1ec8e5ecf
-"""   calc_mean_anom(ecc_anom, e) 
-Calculate mean anomaly for a given eccentric anomaly and eccentricity.
-"""
-function calc_mean_anom(ecc_anom::Real, e::Real) 
-	missing
-end;
-
-# ╔═╡ 05cf7bc1-cc04-4679-9534-05834f097371
-if !@isdefined(calc_mean_anom)
-   func_not_defined(:calc_mean_anom)
-else
-	if !(length(methods(calc_mean_anom,[Float64,Float64])) >= 1)
-		   keep_working(md"Your calc_mean_anom can't take two Float64's as arguments.")
-	elseif ismissing(calc_mean_anom(1.0,0.5))
-		still_missing()
-	elseif calc_mean_anom(1.0,0.5) ≈ 0.5792645075960517
-		correct()
-	else
-		keep_working()	
-	end
-end
-
 # ╔═╡ 76c08fb3-89e1-4897-90f1-2f73ba298010
 md"""
 
@@ -125,13 +129,13 @@ md"""
 
 Sometimes a programmer calls a function with arguments that either don't make sense or represent a case that the function was not originally designed to handle properly. The worst possible function behavior in such a case is returning an incorrect result without any warning that something bad has happened. Returning an error at the end is better, but can make it difficult to figure out the problem. Generally, the earlier the problem is spotted, the easier it will be to fix the problem. Therefore, good developers often include assertions to verify that the function arguments are acceptable.  
 
-For example, in `ecc_anom_init_guess_danby` above, we included an assertion that the eccentricity was positive-semidefinite and less than infinity.  
+For example, in `ecc_anom_init_guess_danby` above, we included an assertion that the eccentricity was positive-semidefinite and less than or equal to unity.  
 
-1b. What other preconditions should be met for the inputs to the functions above?  
+1b. What other preconditions should be met for the inputs to the functions above?    What is about `calc_mean_anom` from 1a?
 """
 
 # ╔═╡ 693371c4-8e35-4a8e-9fa2-8c0e441515ac
-response_1b = missing
+response_1b = missing  # md"YOUR RESPONSE"
 
 # ╔═╡ 33f00289-8f32-4512-968e-d29fcd6968ff
 if !@isdefined(response_1b)
@@ -244,6 +248,9 @@ tip(md"If a test does fail, then it may be useful to run the tests on Roar or yo
 
 # ╔═╡ b760fedd-41ea-4784-845f-ede0163c0d12
 md"## Helper Code"
+
+# ╔═╡ 2e893623-2d05-48ac-b7c6-0ba167dc7419
+ChooseDisplayMode()
 
 # ╔═╡ bfdd8ecf-5f05-4056-a9d8-f3404774ff52
 TableOfContents()
@@ -388,13 +395,14 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╔═╡ Cell order:
 # ╟─27667e0a-8ebc-4397-8ac3-33a0f19f6987
 # ╟─bedbe9b9-03be-4537-b938-89d2857d0cba
+# ╟─8116b382-c927-4563-8fde-dc034dd96ab9
+# ╠═c9eef6f8-4583-429b-a3ae-09f1ec8e5ecf
+# ╟─05cf7bc1-cc04-4679-9534-05834f097371
+# ╟─3ebe8069-11d3-4885-aec8-72e2f3f5f906
 # ╟─f6be4fa8-351a-4c1c-b389-b79f09db2a4b
 # ╠═6421c10b-9429-45ef-8ffb-b5117fae9e58
 # ╠═fbb8c035-da0d-45d0-856c-0668f2ef954f
 # ╠═d48ca14f-2b62-4f35-8c8a-07aa3563b579
-# ╟─8116b382-c927-4563-8fde-dc034dd96ab9
-# ╠═c9eef6f8-4583-429b-a3ae-09f1ec8e5ecf
-# ╟─05cf7bc1-cc04-4679-9534-05834f097371
 # ╟─76c08fb3-89e1-4897-90f1-2f73ba298010
 # ╠═693371c4-8e35-4a8e-9fa2-8c0e441515ac
 # ╟─33f00289-8f32-4512-968e-d29fcd6968ff
@@ -420,6 +428,7 @@ uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 # ╟─2ca10bfe-549b-4910-95a3-e68a292df0d6
 # ╟─a93f0326-78ca-407d-aec2-5de318c002ca
 # ╟─b760fedd-41ea-4784-845f-ede0163c0d12
+# ╠═2e893623-2d05-48ac-b7c6-0ba167dc7419
 # ╠═af508570-b20f-4dd3-a995-36c79fc41823
 # ╠═bfdd8ecf-5f05-4056-a9d8-f3404774ff52
 # ╟─00000000-0000-0000-0000-000000000001
