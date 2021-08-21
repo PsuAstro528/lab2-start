@@ -599,7 +599,7 @@ radial separation of the planet and deviation of its phase from linear growth.
 
 """
 function make_test_plots_v1(; alg=DP8(), duration=100, steps_per_orbit=1000, 
-        save_every_n_orbits=1, init_separation= 1, mass = [1.0, 0.001], plt_title = "")
+        maxiters=1_000_000, save_every_n_orbits=1, init_separation= 1, mass = [1.0, 0.001], plt_title = "")
     @assert length(mass) == 2  # Phase and separation error only make sense for 1 planet
     # Setup initial conditions
     init_velocity = sqrt(sum(mass)/init_separation) # Uniform circular motion
@@ -614,18 +614,18 @@ function make_test_plots_v1(; alg=DP8(), duration=100, steps_per_orbit=1000,
     prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
     if alg==Euler() # Euler requires a specified time step dt
         # First do a very short integration to make sure code is compiled before timing
-        sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits);
+        sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters);
         time_span = (0.0,duration*year) 
         prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
         # Now do the requested integration and time how long it takes
-        @time sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits, force_dtmin=false);
+        @time sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters, force_dtmin=false);
     else # Other algorithms heuristically pick a timestep
         # First do a very short integration to make sure code is compiled before timing
         sol = solve(prob,alg,saveat=year*save_every_n_orbits);
         time_span = (0.0,duration*year) 
         prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
         # Now do the requested integration and time how long it takes
-        @time sol = solve(prob,alg,saveat=year*save_every_n_orbits);
+        @time sol = solve(prob,alg,saveat=year*save_every_n_orbits,maxiters=maxiters);
     end
     separation_init = calc_separation(u_init)
     Lz_init = calc_angular_momentum(u_init,mass)
@@ -657,7 +657,7 @@ make_test_plots_v1(alg=Midpoint(), steps_per_orbit=1000, duration=1000, plt_titl
 make_test_plots_v1(alg=RK4(), steps_per_orbit=10, duration=1000, plt_title="Runge-Kutta 4th order")
 
 # ╔═╡ b4d95d86-254c-4982-bd15-5ff263ff750d
-make_test_plots_v1(alg=Tsit5(), steps_per_orbit=1000, duration=1000, plt_title="Tsit5")
+make_test_plots_v1(alg=Tsit5(), steps_per_orbit=1000, duration=1000,plt_title="Tsit5")
 
 # ╔═╡ 8f68ba9a-ab88-4472-b19b-9f30b3f562e6
 make_test_plots_v1(alg=DP8(), steps_per_orbit=36, duration=1000, plt_title="Dormand-Prince, ~8th order")
