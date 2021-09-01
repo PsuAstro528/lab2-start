@@ -55,7 +55,7 @@ else
 end
 
 # ╔═╡ 3ebe8069-11d3-4885-aec8-72e2f3f5f906
-md"""Solving the Kepler Equation for $E$ given for a given $e$ and $E$ is critical to be able to determine where a body is at a given time.  Since it is a transendental equation (i.e., there is no closed form algebraic solution), it is solved itteratively.  Over the centuries, there have been numerous studies of how to solve the Kepler equation efficiently.  Below, I've coded up an implementation for you to help you get stared.  For this exercise, you don't need to understand the details of how the algorithm works.  Instead, we will focus on how we can use principles of modern software development to improve these functions via assertions and unit tests. 
+md"""Solving the Kepler Equation for $E$ given for a given $e$ and $M$ is critical to be able to determine where a body is at a given time.  Since it is a transendental equation (i.e., there is no closed form algebraic solution), it is solved itteratively.  Over the centuries, there have been numerous studies of how to solve the Kepler equation efficiently.  Below, I've coded up an implementation for you to help you get stared.  For this exercise, you don't need to understand the details of how the algorithm works.  Instead, we will focus on how we can use principles of modern software development to improve these functions via assertions and unit tests. 
 """
 
 # ╔═╡ f6be4fa8-351a-4c1c-b389-b79f09db2a4b
@@ -188,7 +188,7 @@ Units tests check that the post-conditions are met for at least some certain tes
 
 # ╔═╡ 48aed012-2da1-4a06-9404-a34cdd4b3eee
 md"""
-Note that testing equality or inequality is straightforward for integers, but dangerous for floating point numbers.  If a floating point number is equal to an integer, then it's generally ok, but I think it's better to always be cautious about testing floating  point numbers for equality.  Instead, you can test that two numbers are approximately equal using $\simeq$.  When testing that two numbers are approximately equal you need to specify a tolerance.  `atol` refers to an absolute tolerance, while `rtol` refers to a relative or fractional tolerance. For further information on using these, see the [Julia manual](https://docs.julialang.org/en/v1/stdlib/Test/index.html#Basic-Unit-Tests-1).  (Technically, we're using `PlutoTest.@test`, which in implemented in terms of `Test.@test`.
+Note that testing equality or inequality is straightforward for integers, but dangerous for floating point numbers.  If a floating point number is equal to an integer, then it's generally ok, but I think it's better to always be cautious about testing floating  point numbers for equality.  Instead, you can test that two numbers are approximately equal using $≈$.  When testing that two numbers are approximately equal you need to specify a tolerance.  `atol` refers to an absolute tolerance, while `rtol` refers to a relative or fractional tolerance. For further information on using these, see the [Julia manual](https://docs.julialang.org/en/v1/stdlib/Test/index.html#Basic-Unit-Tests-1).  (Technically, we're using `PlutoTest.@test`, which in implemented in terms of `Test.@test`.
 """
 
 # ╔═╡ 9a89ccd7-f690-4dc1-9736-779aa7845ab2
