@@ -530,7 +530,7 @@ end
 
 # ╔═╡ 4f623022-2d89-46c5-901a-9efdcfaed825
 md"""
-It turns out that DifferentialEquations stores the results in a slightly different format, so we need to make new versions of the function calc_phase_error, calc_energy, and calc_angular_momentum.  
+It turns out that DifferentialEquations stores the results in a slightly different format, so we need to make new versions of the function `calc_phase_error`, `calc_energy`, and `calc_angular_momentum`.  
 """
 
 # ╔═╡ ac70198f-f581-4068-89f2-079b11dceead
@@ -757,7 +757,7 @@ display_msg_if_fail(check_type_isa(:response_2i,response_2i,[AbstractString,Mark
 md"""
 ## Choosing efficient algorithms
 
-j.  Try several of the [symplectic integrators](https://diffeq.sciml.ai/stable/solvers/dynamical_solve/#Symplectic-Integrators), such as `McAte3()`, `CalvoSanz4()`, `McAte5()`, `KahanLi6()`, `KahanLi8()`.  The number refers to the order of the integrator.  Compare the accuracy of the results with symplectic integrators of different orders.  You may want to extend the duration of the integrations by replacing 'num_orbits_symplectic' with a large value.
+j.  Try several of the [symplectic integrators](https://diffeq.sciml.ai/stable/solvers/dynamical_solve/#Symplectic-Integrators), such as `McAte3()`, `CalvoSanz4()`, `McAte5()`, `KahanLi6()`, `KahanLi8()`.  The number refers to the order of the integrator.  Compare the accuracy of the results with symplectic integrators of different orders.  You may want to extend the duration of the integrations by replacing `num_orbits_symplectic` with a large value.
 Also compare the wall time required (see the duration printed in the separation panel).  
 """
 
@@ -2381,7 +2381,7 @@ version = "0.9.1+5"
 # ╟─bbeb1677-2f15-46fd-9c0f-7d399b610f5b
 # ╠═0c4b3da0-af77-42b7-acea-a8613f907235
 # ╠═29ce2040-35c1-474b-96b9-d2d3455beee7
-# ╟─4f623022-2d89-46c5-901a-9efdcfaed825
+# ╠═4f623022-2d89-46c5-901a-9efdcfaed825
 # ╠═ac70198f-f581-4068-89f2-079b11dceead
 # ╠═ba8f50a7-8eff-473d-960e-b5255fc08bb4
 # ╠═298476f3-66b5-460e-858e-1d6ecec77dec
@@ -2392,7 +2392,7 @@ version = "0.9.1+5"
 # ╟─06638ff4-3960-4783-99e8-33494de25de1
 # ╠═b463565b-a8b0-4fc9-83e0-ae688dc1643e
 # ╟─ccd4bd59-c30f-488c-a5b5-f88aa61ef849
-# ╟─acaffdff-67a1-43f5-ada6-b3d3a9cb0875
+# ╠═acaffdff-67a1-43f5-ada6-b3d3a9cb0875
 # ╠═a287218b-6152-4af7-bce7-8a8559165ae4
 # ╟─9d8908a1-b164-4b8f-a555-47314094b5b6
 # ╠═a3decfbf-befc-474b-abdb-daada98148ee
