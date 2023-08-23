@@ -4,7 +4,7 @@ Before starting this lab, make sure you've successfully gotten setup to use git,
 The previous lab contained detailed instructions for using the Pluto notebook server.  
 
 Remember, that you need follow the provided link to create your own private copy of this lab's repository on GitHub.com.   See the
-[help on the course website](https://psuastro528.github.io/tips) for instructions on getting setup to use ACI, cloning, commiting, pushing and submiting your work
+[help on the course website](https://psuastro528.github.io/Fall2023/tips) for instructions on getting setup to use Roar Collab, cloning, commiting, pushing and submiting your work
 
 ## Exercise 1:  Benchmarking Code, Big-O notation, Compute vs Memory Limits
 - Goal 1: Benchmark functions accurately
@@ -26,4 +26,3 @@ From your Pluto notebook server, work through ex2.jl.
 - Goal 3:  Setup continuous integration testing
 
 From your Pluto notebook server, work through ex3.jl.
-
