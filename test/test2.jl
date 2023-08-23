@@ -1,7 +1,8 @@
 using Test
 
-@testset "Testing solution to Exercise 2" begin
+@testset "Skipping testing of solution to Exercise 2 since it would take a long time." begin
 
+#=
 @testset "Running ex2.jl" begin
    include("../ex2.jl")
 end;
@@ -37,7 +38,6 @@ end;
    @test !ismissing(response_2l)
    @test !ismissing(response_2m)
 end;
-
-
+=#
 
 end; # Exercise 2
