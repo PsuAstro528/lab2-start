@@ -427,9 +427,9 @@ end;
 begin
 	time_list = zeros(length(N_list))
 	for (i,N) in enumerate(N_list)
-	  A = rand(N,N)
-	  x = rand(N)
-	  y = A*x
+	  local A = rand(N,N)
+	  local x = rand(N)
+	  local y = A*x
 	  time_list[i] = @belapsed solve_Ax_via_LU_factorization($A,$y)
 	end
 	time_list
@@ -483,9 +483,6 @@ FootnotesNumbered()
 
 # ╔═╡ 5b88a5a8-425b-4ecf-a26a-08722d12ef95
 BenchmarkTools.DEFAULT_PARAMETERS.seconds = 1;
-
-# ╔═╡ 44d28ed6-4b75-4d1a-990b-c53ca6f7814e
-benchmark_my_function()
 
 # ╔═╡ 9b2cdb77-9330-4a8b-84b5-deed94c19662
 begin
@@ -1802,7 +1799,6 @@ version = "1.4.1+0"
 # ╠═ea0a7ca2-503f-4d61-a3d4-42503f322782
 # ╠═b5103197-8961-4fc0-99c9-50fee4e15a1c
 # ╠═5b88a5a8-425b-4ecf-a26a-08722d12ef95
-# ╠═44d28ed6-4b75-4d1a-990b-c53ca6f7814e
 # ╠═9b2cdb77-9330-4a8b-84b5-deed94c19662
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
