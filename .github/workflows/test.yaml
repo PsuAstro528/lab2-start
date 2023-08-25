@@ -36,7 +36,7 @@ jobs:
       # Commented out since lab notebooks aren't packages to be built
       - name: Build Package
         uses: julia-actions/julia-buildpkg@v1
-      - name: Instal test/notebook dependencies
-        run: julia test/instantiate.jl
+      - name: Install test/notebook dependencies
+        run: julia --project=test test/instantiate.jl
       - name: Run Tests
         uses: julia-actions/julia-runtest@v1

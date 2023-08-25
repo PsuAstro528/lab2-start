@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.26
+# v0.19.27
 
 using Markdown
 using InteractiveUtils
@@ -418,10 +418,78 @@ md"""
 The first few times we did an integration and made plots, we did it one step at a time.  Going forward, you're going to try integrating this system many times changing the algorithm and a few parameters.  In order to make that more efficient (both for the computer and for you), we'll package all those stepts into a function, `make_test_plots_v1`.
 """
 
+# ╔═╡ dc413bad-9d28-487f-855a-e68295abee75
+"""
+   `make_test_plots_v1(opts)`
+
+Integrate a two-body system and plot the change in energy, angular modmentum, 
+radial separation of the planet and deviation of its phase from linear growth.
+
+# Optional names arguements: (default value)
+- `alg`: algorithm to use (DP8(); see [manual](http://docs.juliadiffeq.org/stable/solvers/ode_solve.html#Full-List-of-Methods-1))
+- `duration`: duration to integrate in orbits (100)
+- `steps_per_orbit`: number of time steps per orbit for Euler algorithm (ignored by other integrators) (1000)
+- `save_every_n_orbits`: how often to store results for plotting (1)
+- `init_separation`: initial separation (1)
+- `mass`: masses of bodies ([1, 0.001])
+
+"""
+function make_test_plots_v1(; alg=DP8(), duration=100, steps_per_orbit=1000, 
+        maxiters=1_000_000, save_every_n_orbits=1, init_separation= 1, mass = [1.0, 0.001], plt_title = "")
+    @assert length(mass) == 2  # Phase and separation error only make sense for 1 planet
+    # Setup initial conditions
+    init_velocity = sqrt(sum(mass)/init_separation) # Uniform circular motion
+    year = 2pi*sqrt(init_separation^3/sum(mass))    # Kepler's third law
+    r_init = init_separation .* [-mass[2]/sum(mass), 0, 0, mass[1]/sum(mass), 0, 0 ]
+    v_init = init_velocity   .* [0, -mass[2]/sum(mass), 0, 0, mass[1]/sum(mass), 0 ]
+    # DifferentialEquations.jl wants the initial conditions as a single vector
+    u_init = vcat(r_init, v_init);  # concatenate positions & velocities
+    @assert length(u_init) == 6 * length(mass)
+    year = 2pi*sqrt(init_separation^3/sum(mass))    # Kepler's third law
+    time_span = (0.0,0.01*year) 
+    prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
+    if alg==Euler() # Euler requires a specified time step dt
+        # First do a very short integration to make sure code is compiled before timing
+        sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters);
+        time_span = (0.0,duration*year) 
+        prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
+        # Now do the requested integration and time how long it takes
+        @time sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters, force_dtmin=false);
+    else # Other algorithms heuristically pick a timestep
+        # First do a very short integration to make sure code is compiled before timing
+        sol = solve(prob,alg,saveat=year*save_every_n_orbits);
+        time_span = (0.0,duration*year) 
+        prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
+        # Now do the requested integration and time how long it takes
+        @time sol = solve(prob,alg,saveat=year*save_every_n_orbits,maxiters=maxiters);
+    end
+    separation_init = calc_separation(u_init)
+    Lz_init = calc_angular_momentum(u_init,mass)
+    E_init = calc_energy(u_init,mass)
+    # Make plots
+    plot_angle    = scatter(sol.t,calc_phase_error(sol,year=year), xlabel = "Time", ylabel = "Phase error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
+    plot_distance = scatter(sol.t,calc_separation.(sol.u).-separation_init, xlabel = "Time", ylabel = "Separation", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
+    plot_energy   = scatter(sol.t,map(x->calc_energy(x,mass).-E_init,sol.u), xlabel = "Time", ylabel = "Energy Error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
+    plot_Lz       = scatter(sol.t,map(x->calc_angular_momentum(x,mass).-Lz_init,sol.u), xlabel = "Time", ylabel = "L_z Error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year, yformatter=((x)->Printf.@sprintf "%0.1e" x))
+    if length(plt_title) >= 1 
+		plt = plot( plot_energy, plot_Lz, plot_distance, plot_angle, layout = (2,2), plot_title=plt_title )
+	else
+		plt = plot( plot_energy, plot_Lz, plot_distance, plot_angle, layout = (2,2) )
+	end
+	
+	plt
+end
+
 # ╔═╡ 4ab79682-ac15-4b51-a630-464bdf5f9108
 md"""
 Now, we can easily integrate systems and inspect the results using just one line of code for each algorithm that we test.  For example:
 """
+
+# ╔═╡ f14d96ef-d885-403a-8f2c-4023abb8db71
+make_test_plots_v1(alg=Euler(), duration=100, plt_title="Euler, 1st order")
+
+# ╔═╡ 590ad389-9037-4a23-ab35-5bea96e32b11
+make_test_plots_v1(alg=Heun(), steps_per_orbit=1000, duration=1000, plt_title="Heun, 2nd order")
 
 # ╔═╡ bb4b371f-c5f4-4d56-9ffb-71cafc3a2ef7
 md"""
@@ -438,6 +506,21 @@ display_msg_if_fail(check_type_isa(:response_3g,response_3g,[AbstractString,Mark
 md"""
 Try experimenting with alternative integration algorithms by replacing `alg=Heun()` in the cell above with [other integration algorithms](http://docs.juliadiffeq.org/stable/solvers/ode_solve.html#Full-List-of-Methods-1) such as `Midpoint()`, `RK4()`, `Tsit5()`, `DP8()`.  (For higher-order algorithms, you may want to reduce the number of steps per orbits.)
 """
+
+# ╔═╡ cbf0d4f7-a10c-4499-9bd5-052a21e3c984
+make_test_plots_v1(alg=Midpoint(), steps_per_orbit=1000, duration=1000, plt_title="Midpoint, 2nd order")
+
+# ╔═╡ c49f5f6d-1ceb-40a3-8032-a74b465936a7
+make_test_plots_v1(alg=RK4(), steps_per_orbit=10, duration=1000, plt_title="Runge-Kutta 4th order")
+
+# ╔═╡ b4d95d86-254c-4982-bd15-5ff263ff750d
+make_test_plots_v1(alg=Tsit5(), steps_per_orbit=1000, duration=1000,plt_title="Tsit5")
+
+# ╔═╡ 8f68ba9a-ab88-4472-b19b-9f30b3f562e6
+make_test_plots_v1(alg=DP8(), steps_per_orbit=36, duration=1000, plt_title="Dormand-Prince, ~8th order")
+
+# ╔═╡ efcc2856-fb3e-45c1-9f70-8e6f4cb979ec
+make_test_plots_v1(alg=Vern8(), steps_per_orbit=1000, duration=1000, plt_title="Verner's Runge-Kutta,  ~8th order")
 
 # ╔═╡ 74f1ea84-e247-4d25-a232-fb486589f604
 md"""
@@ -581,89 +664,6 @@ function calc_angular_momentum(u::AbstractVector, v::AbstractVector, m::Abstract
     L += m[2] * cross(view(u,4:6), view(v,4:6))
     L[3]
 end;
-
-# ╔═╡ dc413bad-9d28-487f-855a-e68295abee75
-"""
-   `make_test_plots_v1(opts)`
-
-Integrate a two-body system and plot the change in energy, angular modmentum, 
-radial separation of the planet and deviation of its phase from linear growth.
-
-# Optional names arguements: (default value)
-- `alg`: algorithm to use (DP8(); see [manual](http://docs.juliadiffeq.org/stable/solvers/ode_solve.html#Full-List-of-Methods-1))
-- `duration`: duration to integrate in orbits (100)
-- `steps_per_orbit`: number of time steps per orbit for Euler algorithm (ignored by other integrators) (1000)
-- `save_every_n_orbits`: how often to store results for plotting (1)
-- `init_separation`: initial separation (1)
-- `mass`: masses of bodies ([1, 0.001])
-
-"""
-function make_test_plots_v1(; alg=DP8(), duration=100, steps_per_orbit=1000, 
-        maxiters=1_000_000, save_every_n_orbits=1, init_separation= 1, mass = [1.0, 0.001], plt_title = "")
-    @assert length(mass) == 2  # Phase and separation error only make sense for 1 planet
-    # Setup initial conditions
-    init_velocity = sqrt(sum(mass)/init_separation) # Uniform circular motion
-    year = 2pi*sqrt(init_separation^3/sum(mass))    # Kepler's third law
-    r_init = init_separation .* [-mass[2]/sum(mass), 0, 0, mass[1]/sum(mass), 0, 0 ]
-    v_init = init_velocity   .* [0, -mass[2]/sum(mass), 0, 0, mass[1]/sum(mass), 0 ]
-    # DifferentialEquations.jl wants the initial conditions as a single vector
-    u_init = vcat(r_init, v_init);  # concatenate positions & velocities
-    @assert length(u_init) == 6 * length(mass)
-    year = 2pi*sqrt(init_separation^3/sum(mass))    # Kepler's third law
-    time_span = (0.0,0.01*year) 
-    prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
-    if alg==Euler() # Euler requires a specified time step dt
-        # First do a very short integration to make sure code is compiled before timing
-        sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters);
-        time_span = (0.0,duration*year) 
-        prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
-        # Now do the requested integration and time how long it takes
-        @time sol = solve(prob,alg,dt=year/steps_per_orbit,saveat=year*save_every_n_orbits,maxiters=maxiters, force_dtmin=false);
-    else # Other algorithms heuristically pick a timestep
-        # First do a very short integration to make sure code is compiled before timing
-        sol = solve(prob,alg,saveat=year*save_every_n_orbits);
-        time_span = (0.0,duration*year) 
-        prob = ODEProblem(gravity_as_first_order_system,u_init,time_span,mass)
-        # Now do the requested integration and time how long it takes
-        @time sol = solve(prob,alg,saveat=year*save_every_n_orbits,maxiters=maxiters);
-    end
-    separation_init = calc_separation(u_init)
-    Lz_init = calc_angular_momentum(u_init,mass)
-    E_init = calc_energy(u_init,mass)
-    # Make plots
-    plot_angle    = scatter(sol.t,calc_phase_error(sol,year=year), xlabel = "Time", ylabel = "Phase error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
-    plot_distance = scatter(sol.t,calc_separation.(sol.u).-separation_init, xlabel = "Time", ylabel = "Separation", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
-    plot_energy   = scatter(sol.t,map(x->calc_energy(x,mass).-E_init,sol.u), xlabel = "Time", ylabel = "Energy Error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year)
-    plot_Lz       = scatter(sol.t,map(x->calc_angular_momentum(x,mass).-Lz_init,sol.u), xlabel = "Time", ylabel = "L_z Error", markersize=0, legend = false, grid=:no, xticks=0:round(duration*year/2,sigdigits=1):duration*year, yformatter=((x)->Printf.@sprintf "%0.1e" x))
-    if length(plt_title) >= 1 
-		plt = plot( plot_energy, plot_Lz, plot_distance, plot_angle, layout = (2,2), plot_title=plt_title )
-	else
-		plt = plot( plot_energy, plot_Lz, plot_distance, plot_angle, layout = (2,2) )
-	end
-	
-	plt
-end
-
-# ╔═╡ f14d96ef-d885-403a-8f2c-4023abb8db71
-make_test_plots_v1(alg=Euler(), duration=100, plt_title="Euler, 1st order")
-
-# ╔═╡ 590ad389-9037-4a23-ab35-5bea96e32b11
-make_test_plots_v1(alg=Heun(), steps_per_orbit=1000, duration=1000, plt_title="Heun, 2nd order")
-
-# ╔═╡ cbf0d4f7-a10c-4499-9bd5-052a21e3c984
-make_test_plots_v1(alg=Midpoint(), steps_per_orbit=1000, duration=1000, plt_title="Midpoint, 2nd order")
-
-# ╔═╡ c49f5f6d-1ceb-40a3-8032-a74b465936a7
-make_test_plots_v1(alg=RK4(), steps_per_orbit=10, duration=1000, plt_title="Runge-Kutta 4th order")
-
-# ╔═╡ b4d95d86-254c-4982-bd15-5ff263ff750d
-make_test_plots_v1(alg=Tsit5(), steps_per_orbit=1000, duration=1000,plt_title="Tsit5")
-
-# ╔═╡ 8f68ba9a-ab88-4472-b19b-9f30b3f562e6
-make_test_plots_v1(alg=DP8(), steps_per_orbit=36, duration=1000, plt_title="Dormand-Prince, ~8th order")
-
-# ╔═╡ efcc2856-fb3e-45c1-9f70-8e6f4cb979ec
-make_test_plots_v1(alg=Vern8(), steps_per_orbit=1000, duration=1000, plt_title="Verner's Runge-Kutta,  ~8th order")
 
 # ╔═╡ 8e59c119-1850-424f-9a78-1d6852054c26
 md"""
