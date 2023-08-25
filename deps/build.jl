@@ -4,7 +4,10 @@ if !occursin(r"lab2-start",pwd())
    settings = 
    """
    [Export]
-   exclude = ["ex3.jl"] 
+   exclude = ["ex3.jl","ex*backup*.jl"] 
+
+   [SliderServer]
+   exclude = ["ex3.jl","ex*backup*.jl"]
    """
    write("../PlutoDeployment.toml",settings)   
 end
