@@ -1,0 +1,2 @@
+[Export]
+exclude = ["ex3.jl"] 
