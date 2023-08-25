@@ -31,10 +31,12 @@ jobs:
         with:
           version: ${{ matrix.julia-version }}
           arch: ${{ matrix.julia-arch }}
-      - uses: julia-actions/cache@v1
+      - name: Cahce something
+        uses: julia-actions/cache@v1
       # Commented out since lab notebooks aren't packages to be built
       - name: Build Package
         uses: julia-actions/julia-buildpkg@v1
-
+      - name: Instal test/notebook dependencies
+        run: julia test/instantiate.jl
       - name: Run Tests
         uses: julia-actions/julia-runtest@v1
