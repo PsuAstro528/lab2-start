@@ -13,14 +13,14 @@ Remember, that you need follow the provided link to create your own private copy
 
 From your Pluto notebook server, work through ex1.jl.
 
-## Exercise 3:  Assertions, Unit Tests & Continuous Integration Testing
+## Exercise 2:  Assertions, Unit Tests & Continuous Integration Testing
 - Goal 1:  Implement effective assertions
 - Goal 2:  Implement effective unit tests
 - Goal 3:  Setup continuous integration testing
 
 From your Pluto notebook server, work through ex2.jl.
 
-## Exercise 2:  Numerical Stability of N-body Integration
+## Exercise 3:  Numerical Stability of N-body Integration
 - Goal 1:  Integrate differential equations
 - Goal 2:  Compare the accuracy of results as a function of time step, order and algorithm
 - Goal 3:  Recognize importance of numerical stability
