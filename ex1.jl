@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.26
+# v0.19.27
 
 using Markdown
 using InteractiveUtils
@@ -111,11 +111,18 @@ aside(tip(md"This is a short-hand way to write a small function.  It's often use
 # ╔═╡ 11df2b04-2bef-497e-a064-cbcd159aecc7
 add_broadcasted(x, y) = x.+y;
 
-# ╔═╡ 2741fd1e-e650-4411-ac4f-9ccb855608c4
-aside(tip(md"This is a more verbose way of writing `mul_broadcasted(x,y) = x.*y`.  It allows us to be a little more careful.  We enforce that the arguements must be arrays of the same size and that the type of the data contained in the two input arrays matches.  We also write out a loop over all elements of the arrays explicitly.  In some languages, this can result in very poor performance.  In Julia, it's still very fast, allowing you to write functions however is easiest for you.  For a 1-d array, we might have written `for i in 1:length(x)`.  Instead, we've used `eachindex` to make the function *generic* in the sense that it can work with arrays of arbitrary dimensions, not just 1-d arrays (i.e., vectors). "))
-
 # ╔═╡ 8320739f-ec14-4a49-b374-a0baa198f646
 function mul_broadcasted(x::Array, y::Array) 
+	x.*y 
+end
+
+# ╔═╡ e352d85a-b8ce-4355-8b0b-9c28465dd006
+div_broadcasted(x,y) = x./y;
+
+# ╔═╡ 2741fd1e-e650-4411-ac4f-9ccb855608c4
+protip(md"There is a more verbose way of writing `x.*y`.  
+```julia
+function mul_loop(x::Array, y::Array)
 	@assert size(x) == size(y)  
 	@assert eltype(x) == eltype(y)
 	z = Array{eltype(x)}(undef,size(x))
@@ -124,9 +131,8 @@ function mul_broadcasted(x::Array, y::Array)
 	end
 	z
 end
-
-# ╔═╡ e352d85a-b8ce-4355-8b0b-9c28465dd006
-div_broadcasted(x,y) = x./y;
+```
+This allows us to be a little more careful.  We enforce that the arguements must be arrays of the same size and that the type of the data contained in the two input arrays matches.  We also write out a loop over all elements of the arrays explicitly.  In some languages, this can result in very poor performance.  In Julia, it's still very fast, allowing you to write functions however is easiest for you.  For a 1-d array, we might have written `for i in 1:length(x)`.  Instead, we've used `eachindex` to make the function *generic* in the sense that it can work with arrays of arbitrary dimensions, not just 1-d arrays (i.e., vectors).  If you benchmark it, you'll find it appears to be slower, but this is due to the fact that it's counting the time required to allocate memory for the output, which is not included when benchmarking the `mul_broadcasted` version.")
 
 # ╔═╡ 0ce6409c-3aa4-4446-ae13-81c4e743d322
 md"Create a function `my_function_2_args` that takes two arrays and applies computes a function of your choice to them."
@@ -211,7 +217,7 @@ end
 
 # ╔═╡ ea68d6eb-a542-44bf-b0e7-815e2372bc33
 md"""
-d. Estimate how long (in seconds) would it take to solve the maximum size linear system that would fit into memory at once, if we use LU factorization to solve a linear system.  You may assume the computation is maximally efficient, the computer reaches peak performance and the LU decomposition requires $(2/3)*N^3$ flops, where $N$ refers to the number of rows in the square array being factorized.
+d. Estimate how long (in seconds) would it take to solve the maximum size linear system that would fit into memory at once, if we use LU factorization to solve a linear system.  You may assume the computation is maximally efficient, the computer reaches peak performance and the LU decomposition requires $(2/3)*N^3$ floating point operations, where $N$ refers to the number of rows in the square array being factorized.
 Use an approximation for the number of floating point operations per second based on your results above."""
 
 # ╔═╡ 484b47d6-65de-497a-b78f-6996c8787de8
@@ -230,7 +236,6 @@ begin
 		nothing
 	elseif response_1d < my_est/10
 		almost(md"Are you sure?  That seems low to me.")
-		correct()
 	elseif response_1d > my_est*10
 		almost(md"Are you sure?  That seems high to me.")
 	else
@@ -610,7 +615,7 @@ PlutoUI = "~0.7.52"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.9.1"
+julia_version = "1.9.2"
 manifest_format = "2.0"
 project_hash = "62a5ca757f4ed83cf1b8b76b0a023dee503facd0"
 
@@ -708,7 +713,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.2+0"
+version = "1.0.5+0"
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
@@ -1190,7 +1195,7 @@ version = "0.42.2+0"
 [[deps.Pkg]]
 deps = ["Artifacts", "Dates", "Downloads", "FileWatching", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "Serialization", "TOML", "Tar", "UUIDs", "p7zip_jll"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
-version = "1.9.0"
+version = "1.9.2"
 
 [[deps.PlotThemes]]
 deps = ["PlotUtils", "Statistics"]
@@ -1715,11 +1720,11 @@ version = "1.4.1+0"
 # ╟─aa8367f9-33f4-490e-851b-5f02f15db48d
 # ╠═11df2b04-2bef-497e-a064-cbcd159aecc7
 # ╠═d5322db3-501f-467f-a3f4-297258bc2570
-# ╟─2741fd1e-e650-4411-ac4f-9ccb855608c4
 # ╠═8320739f-ec14-4a49-b374-a0baa198f646
 # ╠═fffd69c6-47d6-411c-ba57-9c52e659f598
 # ╠═e352d85a-b8ce-4355-8b0b-9c28465dd006
 # ╠═4a45fa07-f4dd-4a76-8bd1-8627060a6fc5
+# ╟─2741fd1e-e650-4411-ac4f-9ccb855608c4
 # ╟─0ce6409c-3aa4-4446-ae13-81c4e743d322
 # ╠═f13619d1-6ece-42be-965d-ab6bb9e9b8cd
 # ╟─340808ea-e99b-4de7-ad55-b2d812ff0f4d
